@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -55,3 +56,48 @@ model.fit(X_train_vec,Y_train)
 
 
 # time to test the model 
+
+
+y_pred = model.predict(X_test_vec)
+
+#y_test is the Answer Key for the y_pred
+
+print(accuracy_score(Y_test,y_pred))
+
+print()
+print(classification_report(Y_test, y_pred))
+
+# now it has 92% accuracy, but will it detect my own spam mail ? 
+
+new_mails = ["Hey Umut, can you meet me at my office tomorrow morning? We need to talk",
+             "Subject: Free money online! Save now and click http://www.getfreeprize.com to win cash"]
+
+newmailvec = vectorizer.transform(new_mails)
+
+predicts = model.predict(newmailvec)
+for mail, tahmin in zip(new_mails, predicts):
+    stat = "spam" if tahmin == 1 else "ham"
+    print(f"\n message : {mail}")
+    print(f"prediction: {stat}")
+
+
+prob = model.predict_proba(newmailvec)
+
+for mail,prob in zip(new_mails,prob):
+    print(mail)
+    print(f"{prob[0]*100:.2f}") # ham possiblity
+    print(f"{prob[1]*100:.2f}") # spam possiblity
+
+
+
+print()
+# spam word chec 
+
+words = np.array(vectorizer.get_feature_names_out())
+
+
+coef = model.feature_log_prob_[1]
+
+mostSpam = words[np.argsort(coef)[-15:]]
+
+print(mostSpam)
